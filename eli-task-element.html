@@ -1,0 +1,36 @@
+<link rel="import" href="../polymer/polymer-element.html">
+
+<dom-module id="eli-task-element">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>Hello [[prop1]]!</h2>
+  </template>
+
+  <script>
+    /**
+     * `eli-task-element`
+     * 
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class EliTaskElement extends Polymer.Element {
+      static get is() { return 'eli-task-element'; }
+      static get properties() {
+        return {
+          prop1: {
+            type: String,
+            value: 'eli-task-element'
+          }
+        };
+      }
+    }
+
+    window.customElements.define(EliTaskElement.is, EliTaskElement);
+  </script>
+</dom-module>
