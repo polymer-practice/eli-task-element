@@ -1,36 +1,121 @@
 <link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
 
 <dom-module id="eli-task-element">
   <template>
     <style>
-      :host {
-        display: block;
-      }
+     :host {
+       display: block;
+       font-size: 16px;
+       --pending-color: blue;
+       --cancelled-color: red;
+       --done-color: green;
+     }
+     .task-container{
+       display:flex;
+       flex-direction: row;
+       align-items: center;
+     }
+     .task-icon{
+       margin-right: 5px;
+     }
+     .task-pending{
+       color: var(--pending-color);
+     }
+     .task-done{
+       color: var(--done-color);
+       text-decoration: line-through;
+     }
+     .task-cancelled{
+       color: var(--cancelled-color);
+       text-decoration: line-through;
+     }
+     button{
+       margin: 0px 5px;
+     }
     </style>
-    <h2>Hello [[prop1]]!</h2>
+    <div class="task-container">
+      <iron-icon icon="icons:radio-button-checked" class="task-icon"></iron-icon>
+      <span class$="task-[[getClass(state)]]">[[title]]</span>
+      <div class="botonera" on-click="buttonClicked">
+        <button name="pending">Pending</button>
+        <button name="done">Done</button>
+        <button name="cancel">Cancel</button>
+      </div>
+    </div>
   </template>
 
   <script>
-    /**
-     * `eli-task-element`
-     * 
-     *
-     * @customElement
-     * @polymer
-     * @demo demo/index.html
-     */
-    class EliTaskElement extends Polymer.Element {
-      static get is() { return 'eli-task-element'; }
-      static get properties() {
-        return {
-          prop1: {
-            type: String,
-            value: 'eli-task-element'
-          }
-        };
-      }
-    }
+   /**
+    * `eli-task-element`
+    *
+    *
+    * @customElement
+    * @polymer
+    * @demo demo/index.html
+    */
+   class EliTaskElement extends Polymer.Element {
+     static get is() { return 'eli-task-element'; }
+     static get properties() {
+       return {
+         title: String,
+         key: Number,
+         done: {
+           type: Boolean,
+           value: false
+         },
+         cancelled: {
+           type: Boolean,
+           value: false
+         },
+         state:{
+           type: String,
+           computed: "calculateState(done,cancelled)"
+         }
+       };
+     }
+     calculateState(done, cancelled){
+       return (done && cancelled) ? 1 : (cancelled && !done ? 2 : 0);
+     }
+     getClass(state){
+       switch(state){
+         case 0:
+           return "pending";
+         case 1:
+           return "done";
+         case 2:
+           return "cancelled";
+       }
+     }
 
-    window.customElements.define(EliTaskElement.is, EliTaskElement);
+     buttonClicked(event){
+       let stateButton;
+         switch(event.target.getAttribute('name')){
+         case 'pending':
+           stateButton = 'set-task-pending';
+             break;
+         case 'done':
+           stateButton = 'set-task-done';
+             break;
+         case 'cancel':
+           stateButton = 'set-task-cancelled';
+             break;
+       }
+       const taskStateChange = new CustomEvent(
+         stateButton,
+         {
+           bubbles: true,
+           composed: true,
+           detail:{
+             name:'cambio estado',
+             state: this.state,
+             key: this.key
+           }
+         });
+       this.dispatchEvent(taskStateChange)
+     }
+   }
+
+   window.customElements.define(EliTaskElement.is, EliTaskElement);
   </script>
 </dom-module>

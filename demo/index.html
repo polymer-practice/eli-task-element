@@ -22,7 +22,18 @@
       <h3>Basic eli-task-element demo</h3>
       <demo-snippet>
         <template>
-          <eli-task-element></eli-task-element>
+          <div id="task-element-container">
+            <eli-task-element title="Esto es una tarea" key=0></eli-task-element>
+            <eli-task-element title="Esto es una tarea" key=1 done></eli-task-element>
+            <eli-task-element title="Esto es una tarea" key=2 cancelled></eli-task-element>
+            <eli-task-element title="Esto es una tarea" key=3 done cancelled></eli-task-element>
+          </div>
+          <script>
+           const setTasks = document.querySelector('#task-element-container');
+           setTasks.addEventListener('set-task-pending', (event) => console.log(event.detail));
+           setTasks.addEventListener('set-task-done', (event) => console.log(event.detail));
+           setTasks.addEventListener('set-task-cancel', (event) => console.log(event.detail));
+          </script>
         </template>
       </demo-snippet>
     </div>
