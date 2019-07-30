@@ -4,17 +4,31 @@
 <dom-module id="eli-task-element">
   <template>
     <style>
-     :host {
+     :host{
        display: block;
        font-size: 16px;
        --pending-color: blue;
        --cancelled-color: red;
        --done-color: green;
      }
+     .botonera>button{
+       width: 100px;
+     }
      .task-container{
-       display:flex;
+       display: flex;
+       flex-direction: column;
+       align-items: flex-start;
+       margin: 5px;
+     }
+     .task-description{
+       display: flex;
        flex-direction: row;
-       align-items: center;
+       align-items: flex-start;
+     }
+     .botonera{
+       display: flex;
+       flex-direction: row;
+       align-items: flex-start;
      }
      .task-icon{
        margin-right: 5px;
@@ -33,14 +47,30 @@
      button{
        margin: 0px 5px;
      }
+     @media(min-width: 600px) {
+       .task-container{
+         flex-direction: row;
+       }
+       .botonera{
+         align-items: flex-end;
+       }
+     }
     </style>
     <div class="task-container">
-      <iron-icon icon="icons:radio-button-checked" class="task-icon"></iron-icon>
-      <span class$="task-[[getClass(state)]]">[[title]]</span>
+      <div class="task-description">
+        <iron-icon icon="icons:radio-button-checked" class="task-icon"></iron-icon>
+        <span class$="task-[[getClass(state)]]">[[title]]</span>
+      </div>
       <div class="botonera" on-click="buttonClicked">
-        <button name="pending">Pending</button>
-        <button name="done">Done</button>
-        <button name="cancel">Cancel</button>
+        <template is="dom-if" if="[[showPending]]">
+          <button name="pending">Pending</button>
+        </template>
+        <template is="dom-if" if="[[showDone]]">
+          <button name="done">Done</button>
+        </template>
+        <template is="dom-if" if="[[showCancel]]">
+          <button name="cancel">Cancel</button>
+        </template>
       </div>
     </div>
   </template>
@@ -68,17 +98,29 @@
            type: Boolean,
            value: false
          },
-         state:{
+         state: {
            type: String,
            computed: "calculateState(done,cancelled)"
+         },
+         showPending: {
+           type: Boolean,
+           computed: "isShowPending(done,cancelled)"
+         },
+         showDone: {
+           type: Boolean,
+           computed: "isShowDone(done)"
+         },
+         showCancel: {
+           type: Boolean,
+           computed: "isShowCancel(done,cancelled)"
          }
        };
      }
-     calculateState(done, cancelled){
-       return (done && cancelled) ? 1 : (cancelled && !done ? 2 : 0);
+     calculateState(done, cancelled) {
+       return (cancelled && !done) ? 2 : ((done && cancelled) || done) ? 1 : 0;
      }
-     getClass(state){
-       switch(state){
+     getClass(state) {
+       switch (state) {
          case 0:
            return "pending";
          case 1:
@@ -88,26 +130,38 @@
        }
      }
 
-     buttonClicked(event){
+     isShowPending(done, cancelled) {
+       return done || cancelled;
+     }
+
+     isShowDone(done, cancelled) {
+       return !done;
+     }
+
+     isShowCancel(done, cancelled) {
+       return !cancelled || (cancelled && done);
+     }
+
+     buttonClicked(event) {
        let stateButton;
-         switch(event.target.getAttribute('name')){
+       switch (event.target.getAttribute('name')) {
          case 'pending':
            stateButton = 'set-task-pending';
-             break;
+           break;
          case 'done':
            stateButton = 'set-task-done';
-             break;
+           break;
          case 'cancel':
            stateButton = 'set-task-cancelled';
-             break;
+           break;
        }
        const taskStateChange = new CustomEvent(
          stateButton,
          {
            bubbles: true,
            composed: true,
-           detail:{
-             name:'cambio estado',
+           detail: {
+             name: 'cambio estado',
              state: this.state,
              key: this.key
            }
